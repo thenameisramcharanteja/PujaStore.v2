@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Room | GANESH PUJA SAMAGRI</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Outfit:wght@600;700&display=swap"
+        rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { saffron: '#FF9933', gold: '#D4AF37' },
+                    fontFamily: { sans: ['Inter'], premium: ['Outfit'] }
+                }
+            }
+        }
+    </script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Firebase SDK (10.8.1 Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+</head>
+
+<body class="bg-[#FDFBF7] min-h-screen p-6 lg:p-12">
+
+    <div class="max-w-3xl mx-auto">
+        <header class="flex items-center justify-between mb-12">
+            <div>
+                <h1 class="font-premium font-bold text-3xl text-gray-900">Stock <span class="text-saffron">Room</span>
+                </h1>
+                <p class="text-sm text-gray-400 font-bold uppercase tracking-widest mt-1">Father's Management Portal</p>
+            </div>
+            <a href="index.html"
+                class="bg-white border border-gray-200 px-6 py-3 rounded-2xl text-xs font-bold hover:text-saffron transition-all">View
+                Store</a>
+        </header>
+
+        <!-- Admin Login Overlay -->
+        <div id="admin-login" class="bg-white rounded-[2.5rem] shadow-2xl p-8 md:p-12 border border-gray-100 max-w-md mx-auto mt-10">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-saffron/10 text-saffron rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i class="ph-fill ph-lock-key text-3xl"></i>
+                </div>
+                <h2 class="font-premium font-bold text-2xl text-gray-900">Admin Portal</h2>
+                <p class="text-sm text-gray-500">Enter your credentials to manage stock.</p>
+            </div>
+            <div class="space-y-4">
+                <input type="text" id="admin-user" placeholder="Username" class="w-full bg-gray-50 border border-gray-200 py-4 px-6 rounded-2xl outline-none focus:border-saffron focus:bg-white transition-all font-bold text-gray-900">
+                <input type="password" id="admin-pass" placeholder="Password" class="w-full bg-gray-50 border border-gray-200 py-4 px-6 rounded-2xl outline-none focus:border-saffron focus:bg-white transition-all font-bold text-gray-900">
+                <button onclick="checkAdminLogin()" class="w-full bg-gray-900 text-white font-bold py-4 rounded-2xl shadow-xl hover:bg-saffron transition-all active:scale-95">Access Dashboard</button>
+            </div>
+        </div>
+
+        <!-- Protected Admin Content -->
+        <div id="admin-content" class="hidden">
+            <main class="bg-white rounded-[2.5rem] shadow-2xl p-8 md:p-12 border border-gray-100">
+            <h2 class="font-premium font-bold text-2xl text-gray-900 mb-8">Add a New Item</h2>
+
+            <form id="stock-form" class="space-y-8">
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Item Name</label>
+                    <input type="text" id="item-name" placeholder="Enter product name" required
+                        class="w-full bg-gray-50 border border-gray-200 py-4 px-6 rounded-2xl outline-none focus:border-saffron focus:bg-white transition-all font-bold text-gray-900">
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Price
+                            (₹)</label>
+                        <input type="number" id="item-price" placeholder="0" required
+                            class="w-full bg-gray-50 border border-gray-200 py-4 px-6 rounded-2xl outline-none focus:border-saffron focus:bg-white transition-all font-bold text-gray-900">
+                    </div>
+                    <div class="space-y-2">
+                        <label
+                            class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Category</label>
+                        <select id="item-category" required
+                            class="w-full bg-gray-50 border border-gray-200 py-4 px-6 rounded-2xl outline-none focus:border-saffron focus:bg-white transition-all font-bold text-gray-900">
+                            <option value="Kits">Kits</option>
+                            <option value="Incense">Incense</option>
+                            <option value="Brass">Brass</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label
+                        class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Description</label>
+                    <textarea id="item-desc" rows="4" placeholder="Enter item details..." required
+                        class="w-full bg-gray-50 border border-gray-200 py-4 px-6 rounded-2xl outline-none focus:border-saffron focus:bg-white transition-all font-medium text-gray-900"></textarea>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Product
+                        Photo</label>
+                    <input type="file" id="p-image" accept="image/*" capture="environment" multiple
+                        class="w-full bg-gray-50 border border-gray-200 py-4 px-6 rounded-2xl outline-none font-bold text-gray-500">
+                    <div id="image-previews" class="flex gap-2 mt-4 overflow-x-auto p-1"></div>
+                </div>
+
+                <button type="submit" id="submit-btn"
+                    class="w-full bg-gray-900 text-white font-bold py-5 rounded-[1.5rem] shadow-xl hover:bg-saffron transition-all flex justify-center items-center gap-3 text-lg group active:scale-95">
+                    <i class="ph ph-plus-circle text-2xl"></i>
+                    <span id="btn-text">Upload to Store</span>
+                </button>
+            </form>
+        </main>
+
+        <!-- Product Management Section -->
+        <section class="mt-12 bg-white rounded-[2.5rem] shadow-xl p-8 md:p-12 border border-gray-100">
+            <h2 class="font-premium font-bold text-2xl text-gray-900 mb-8">Manage Products</h2>
+            <div id="admin-product-list" class="space-y-4">
+                <!-- Loaded via JS -->
+                <div class="animate-pulse flex flex-col gap-4">
+                    <div class="h-16 bg-gray-100 rounded-2xl w-full"></div>
+                    <div class="h-16 bg-gray-100 rounded-2xl w-full"></div>
+                </div>
+            </div>
+        </section>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+
+
+</html>

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Cart | GANESH PUJA SAMAGRI</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        saffron: { DEFAULT: '#FF9933', dark: '#E68A2E', light: '#FFB366' },
+                        gold: { DEFAULT: '#D4AF37', dark: '#B8860B' },
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        premium: ['Outfit', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="css/style.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+</head>
+<body class="bg-[#FDFBF7]">
+
+    <header class="glass sticky top-0 z-50 px-4 py-4 border-b border-gray-100">
+        <div class="max-w-4xl mx-auto flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-2 text-gray-900 font-bold">
+                <i class="ph ph-arrow-left text-xl"></i> Back to Store
+            </a>
+            <h1 class="font-premium font-bold text-xl">Order Summary</h1>
+            <div class="w-10"></div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto p-6 space-y-8 pb-32">
+        <!-- Cart Items -->
+        <div id="cart-items-list" class="space-y-4">
+            <!-- Rendered via JS -->
+        </div>
+
+        <!-- UPI Payment Section -->
+        <div class="bg-white rounded-[2.5rem] p-8 border border-gray-100 shadow-sm space-y-6">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-2xl">
+                    <i class="ph ph-qr-code"></i>
+                </div>
+                <div>
+                    <h3 class="font-premium font-bold text-gray-900 text-lg leading-tight">Direct UPI Payment</h3>
+                    <p class="text-xs text-gray-500">Pay directly for zero extra fees</p>
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row items-center gap-8 bg-gray-50 p-8 rounded-[2rem]">
+                <div class="w-48 h-48 bg-white p-4 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-center overflow-hidden">
+                    <img id="upi-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=adituitionofficial@okaxis&pn=GANESH%20PUJA%20SAMAGRI" alt="UPI QR Code" class="w-full">
+                </div>
+                <div class="space-y-4 text-center md:text-left">
+                    <div>
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Our UPI ID</p>
+                        <div class="flex items-center gap-2 justify-center md:justify-start">
+                            <span class="text-lg font-black text-gray-900" id="upi-id">adituitionofficial@okaxis</span>
+                            <button onclick="copyUPI()" class="text-saffron hover:scale-110 transition-transform"><i class="ph ph-copy text-xl"></i></button>
+                        </div>
+                    </div>
+                    <div class="p-4 bg-orange-50 rounded-xl border border-orange-100">
+                        <p class="text-xs text-orange-800 leading-relaxed font-medium">Scan the QR code or pay to the UPI ID above using any app (GPay, PhonePe, Paytm).</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Transaction ID / UTR Number</label>
+                <input type="text" id="txn-id" placeholder="Paste the 12-digit Transaction ID here" required
+                       class="w-full bg-gray-50 border border-gray-200 py-4 px-6 rounded-2xl outline-none focus:border-saffron focus:bg-white transition-all font-black text-gray-900 placeholder:font-medium">
+                <p class="text-[10px] text-gray-400 font-bold italic ml-2">* We will verify this ID before processing your order.</p>
+            </div>
+        </div>
+
+        <!-- Final Bill -->
+        <div class="bg-gray-900 rounded-[2.5rem] p-8 text-white shadow-2xl relative overflow-hidden">
+            <div class="space-y-4">
+                <div class="flex justify-between items-center opacity-60">
+                    <span class="text-sm font-bold">Subtotal</span>
+                    <span class="text-sm font-bold" id="bill-subtotal">₹0</span>
+                </div>
+                <div class="flex justify-between items-center opacity-60">
+                    <span class="text-sm font-bold">Delivery Fee</span>
+                    <span class="text-sm font-bold text-green-400">FREE</span>
+                </div>
+                <div class="pt-4 border-t border-white/10 flex justify-between items-end">
+                    <div>
+                        <p class="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">Total Amount</p>
+                        <h2 class="text-4xl font-premium font-bold" id="bill-total">₹0</h2>
+                    </div>
+                    <div class="flex flex-col gap-3">
+                        <button id="place-order-btn" class="bg-saffron text-white font-black px-10 py-5 rounded-[1.5rem] shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-3">
+                            Place Order <i class="ph-bold ph-arrow-right"></i>
+                        </button>
+                        <a id="whatsapp-btn" href="#" target="_blank" class="hidden bg-[#25D366] text-white font-black px-10 py-4 rounded-[1.5rem] shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3 text-sm">
+                            <i class="ph-fill ph-whatsapp-logo text-xl"></i> Confirm on WhatsApp
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/firebase-config.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        let currentOrderItems = [];
+        let currentTotal = 0;
+
+        async function renderCart() {
+            const list = document.getElementById('cart-items-list');
+            let items = [];
+            let subtotal = 0;
+
+            if (currentUser && window.db) {
+                const snapshot = await db.collection('carts').where('userId', '==', currentUser.uid).get();
+                items = snapshot.docs.map(doc => ({ docId: doc.id, ...doc.data() }));
+            } else {
+                items = cart;
+            }
+
+            currentOrderItems = items;
+
+            if (items.length === 0) {
+                list.innerHTML = `<div class="py-20 text-center"><p class="text-gray-400 font-bold">Your cart is empty.</p></div>`;
+                return;
+            }
+
+            list.innerHTML = items.map(item => {
+                subtotal += (item.price * item.quantity);
+                return `
+                <div class="bg-white p-4 rounded-3xl border border-gray-100 flex items-center gap-4 shadow-sm group">
+                    <div class="w-16 h-16 rounded-2xl overflow-hidden bg-gray-50 flex-shrink-0">
+                        <img src="${item.image}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex-grow">
+                        <h4 class="font-bold text-gray-900">${item.name || item.productName}</h4>
+                        <p class="text-xs text-gray-400 font-bold">₹${item.price} x ${item.quantity}</p>
+                    </div>
+                    <button onclick="removeFromCart('${item.productId || item.id}')" class="w-10 h-10 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+                        <i class="ph ph-trash text-xl"></i>
+                    </button>
+                </div>`;
+            }).join('');
+
+            currentTotal = subtotal;
+            document.getElementById('bill-subtotal').textContent = `₹${subtotal}`;
+            document.getElementById('bill-total').textContent = `₹${subtotal}`;
+            
+            // Update QR Code with amount and unique reference
+            const upiId = document.getElementById('upi-id').textContent;
+            const transactionRef = `ORDER_${Date.now()}_${currentUser ? currentUser.uid.substring(0,5) : 'GUEST'}`;
+            document.getElementById('upi-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=${upiId}&pn=GANESH%20PUJA%20SAMAGRI&am=${subtotal}&cu=INR&tr=${transactionRef}&tn=Order%20from%20GANESH%20PUJA%20SAMAGRI`;
+        }
+
+        async function placeOrder() {
+            const txnId = document.getElementById('txn-id').value.trim();
+            const btn = document.getElementById('place-order-btn');
+
+            if (!txnId) {
+                showToast("Please enter the Transaction ID first!", "error");
+                return;
+            }
+
+            if (!currentUser) {
+                showToast("Please sign in to place your order.", "error");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Processing...';
+
+            try {
+                // Save Order
+                const orderData = {
+                    userId: currentUser.uid,
+                    userEmail: currentUser.email,
+                    items: currentOrderItems,
+                    totalAmount: currentTotal,
+                    transactionId: txnId,
+                    status: 'Pending Verification',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                const docRef = await db.collection('orders').add(orderData);
+                
+                // Show WhatsApp Button
+                const whatsappNumber = "+919573187391";
+                const itemNames = currentOrderItems.map(i => `• ${i.name} (x${i.quantity}) - ₹${i.price * i.quantity}`).join('\n');
+                const userName = currentUser ? (currentUser.displayName || "Customer") : "Customer";
+                const userEmail = currentUser ? currentUser.email : "Not Provided";
+                
+                const message = `Hello GANESH PUJA SAMAGRI,\n\nI would like to confirm my order.\n\n*Customer Details:*\nName: ${userName}\nEmail: ${userEmail}\n\n*Order Details (ID: ${docRef.id.slice(0,6)}):*\n${itemNames}\n\n*Total Amount:* ₹${currentTotal}\n*Payment Method:* UPI\n*Transaction ID:* ${txnId}\n\nPlease verify and confirm my order. Thank you!`;
+                
+                const waBtn = document.getElementById('whatsapp-btn');
+                waBtn.href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+                waBtn.classList.remove('hidden');
+                btn.classList.add('hidden');
+
+                // Clear Cart
+                if (currentUser) {
+                    const snapshot = await db.collection('carts').where('userId', '==', currentUser.uid).get();
+                    const deletePromises = snapshot.docs.map(doc => db.collection('carts').doc(doc.id).delete());
+                    await Promise.all(deletePromises);
+                }
+
+                showToast("Order saved! Please click 'Confirm on WhatsApp' to finish.", "success");
+
+            } catch (error) {
+                console.error("Order error:", error);
+                showToast("Failed to place order. Try again.", "error");
+                btn.disabled = false;
+                btn.innerHTML = 'Place Order <i class="ph-bold ph-arrow-right"></i>';
+            }
+        }
+
+        function copyUPI() {
+            const upi = document.getElementById('upi-id').textContent;
+            navigator.clipboard.writeText(upi);
+            showToast("UPI ID copied to clipboard!", "success");
+        }
+
+        document.getElementById('place-order-btn').addEventListener('click', placeOrder);
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(renderCart, 1000); // Wait for auth
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120" width="100%" height="100%">
+  <!-- Background transparent -->
+  
+  <!-- Icon / Diya Symbol -->
+  <g transform="translate(10, 10)">
+    <!-- Base of the Diya -->
+    <path d="M20 50 Q 50 90 80 50 Z" fill="#FF9933" />
+    
+    <!-- Flame Outer -->
+    <path d="M50 15 Q 65 35 50 50 Q 35 35 50 15 Z" fill="#FFCC00" />
+    
+    <!-- Flame Inner -->
+    <path d="M50 25 Q 58 40 50 50 Q 42 40 50 25 Z" fill="#FFF3CD" />
+    
+    <!-- Glow -->
+    <circle cx="50" cy="35" r="30" fill="#FFCC00" opacity="0.2" />
+  </g>
+
+  <!-- Typography -->
+  <text x="110" y="65" font-family="'Inter', sans-serif" font-weight="800" font-size="42" fill="#1F2937">Puja</text>
+  <text x="210" y="65" font-family="'Inter', sans-serif" font-weight="800" font-size="42" fill="#FF9933">Store</text>
+  
+  <!-- Subtitle -->
+  <text x="115" y="85" font-family="'Inter', sans-serif" font-weight="600" font-size="14" letter-spacing="4" fill="#6B7280" text-transform="uppercase">Divine Essentials</text>
+</svg>
